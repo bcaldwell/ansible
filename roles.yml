@@ -1,0 +1,11 @@
+---
+- vars:
+    become: true
+    roles: upgrade
+    hosts: pebblenotify
+  hosts: "{{hosts}}"
+
+  become: "{{become}}"
+
+  roles:
+    - "{{roles}}"

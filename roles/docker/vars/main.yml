@@ -1,0 +1,4 @@
+---
+# place your role specific variables here for ansible to automatically import them!
+kernel: "{{ansible_kernel | regex_replace('^(?P<version>\\d+.\\d+.\\d+).+', '\\g<version>') }}"
+

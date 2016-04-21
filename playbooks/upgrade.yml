@@ -1,0 +1,10 @@
+---
+- vars:
+    hosts: wekan
+  hosts: "{{hosts}}"
+
+  become: true
+
+  roles:
+    - upgrade
+
