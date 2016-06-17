@@ -1,0 +1,63 @@
+---
+  - hosts: server
+    vars:
+      package_to_install:
+        - build-essential
+        - curl
+        - vim
+        - git
+        - zsh
+        - tmux
+        - tmux-next
+
+    tasks:
+      - name: Add tmux-next repository
+        apt_repository: repo='ppa:pi-rho/dev' state=present
+        become: yes
+
+      - name: Update APT package cache
+        apt: update_cache=yes cache_valid_time=3600
+        become: yes
+
+      - name: Install required packages
+        apt: state=installed pkg={{ item }}
+        with_items: "{{package_to_install}}"
+        become: yes
+
+      - name: Add .dotfiles git repo
+        git: repo=https://github.com/benjamincaldwell/.dotfiles
+          dest=~/.dotfiles
+
+      - stat: path=~/.gitconfig
+        register: gitconfig
+
+      - name: Make git
+        shell: (cd ~/.dotfiles/git && make all)
+        when: gitconfig.stat.islnk is not defined or gitconfig.stat.islnk == False
+
+      - stat: path=~/.vimrc
+        register: vimrc
+
+      - name: Make vim
+        shell: (cd ~/.dotfiles/vim && make all)
+        when: vimrc.stat.islnk is not defined or vimrc.stat.islnk == False
+
+      - stat: path=~/.tmux.conf
+        register: tmux
+
+      - name: Make tmux
+        shell: (cd ~/.dotfiles/tmux && make all)
+        when: tmux.stat.islnk is not defined or tmux.stat.islnk == False
+
+      - stat: path=~/.zshrc
+        register: zshrc
+
+      - name: Make zsh
+        shell: (cd ~/.dotfiles/zsh && make all)
+        when: zshrc.stat.islnk is not defined or zshrc.stat.islnk == False
+
+      - name: Set admin user shell to zsh
+        user:
+          name=admin
+          shell=/bin/zsh
+        become: yes

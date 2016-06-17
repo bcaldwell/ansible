@@ -1,5 +1,6 @@
 ---
 - hosts: server
+  become: yes
 
   vars:
     user_name: admin
@@ -15,6 +16,8 @@
       prompt: "Enter password for user admin"
       confirm: yes
       private: yes
+      encrypt: "sha512_crypt"
+      salt_size: 7
 
   tasks:
 
@@ -75,6 +78,19 @@
         line="PermitRootLogin no"
         state=present
       notify: Restart ssh
+
+    - name: Install sysdig
+      shell: curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sudo bash
+
+    - name: Addd eadsnakes-python2.7 repo
+      apt_repository: repo='ppa:fkrull/deadsnakes-python2.7' state=present
+
+    - name: Upgrade python2
+      apt: name={{item}} state=present update_cache=yes
+      with_items:
+        - python2.7 
+        - python2.7-dev
+
 
   handlers:
     - name: Restart ssh

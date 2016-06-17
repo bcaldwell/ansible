@@ -1,10 +1,10 @@
 ---
 - vars:
-    hosts: temp
+    hosts: server
+    roles: docker
   hosts: "{{hosts}}"
 
   become: true
 
   roles:
-    - docker
-
+    - "{{ roles }}"

@@ -1,6 +1,0 @@
----
-- name: Create admin user
-  user:
-    name=admin
-    state=present
-    
