@@ -1,0 +1,11 @@
+---
+- vars:
+    email: user@example.com
+    domains: hello.example.com
+    CF_email: user@example.com
+    CF_key: CLOUDFLARE KEY
+
+  hosts: localhost
+
+  roles:
+    - letsencrypt

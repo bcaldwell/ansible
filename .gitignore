@@ -1,2 +1,4 @@
 letsencrypt.retry
 *.retry
+.DS_Store
+*/**/*retry
