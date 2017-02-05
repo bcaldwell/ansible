@@ -53,7 +53,7 @@
 
 
 - name: Get certificate
-  shell: . /home/letsencrypt/letsencrypt.sh/venv/bin/activate && ./letsencrypt.sh -c
+  shell: . /home/letsencrypt/letsencrypt.sh/venv/bin/activate && ./dehydrated -c
   args:
     chdir: /home/letsencrypt/letsencrypt.sh
   become: true

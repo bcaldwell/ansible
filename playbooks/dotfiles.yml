@@ -8,12 +8,12 @@
         - git
         - zsh
         - tmux
-        - tmux-next
+#        - tmux-next
 
     tasks:
-      - name: Add tmux-next repository
-        apt_repository: repo='ppa:pi-rho/dev' state=present
-        become: yes
+#      - name: Add tmux-next repository
+#        apt_repository: repo='ppa:pi-rho/dev' state=present
+#        become: yes
 
       - name: Update APT package cache
         apt: update_cache=yes cache_valid_time=3600

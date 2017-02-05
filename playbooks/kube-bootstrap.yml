@@ -1,0 +1,29 @@
+---
+  - hosts: kube
+    vars:
+      docker_iptables: false
+      install_docker_compose: false
+    roles:
+      - docker
+
+    tasks:
+      - name: "Add kubernetes gpg key"
+        apt_key:
+          url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+          state: present
+        become: yes
+
+      - name: Create kubernetes.list file
+        copy:
+          dest: /etc/apt/sources.list.d/kubernetes.list
+          content: 'deb http://apt.kubernetes.io/ kubernetes-{{ansible_distribution_release}} main'
+        become: yes
+
+      - name: Install kubernetes
+        apt: name={{item}} state=present update_cache=yes
+        with_items:
+          - kubelet
+          - kubeadm
+          - kubectl
+          - kubernetes-cni
+        become: yes
