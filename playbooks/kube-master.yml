@@ -9,6 +9,8 @@
         shell: kubeadm init --pod-network-cidr 10.244.0.0/16
         args:
           executable: /bin/bash
+        #     become: yes
+        #   become_user: root   
 
       - name: "Initialize flannel"
         shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
