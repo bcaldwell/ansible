@@ -1,8 +1,10 @@
 ---
-  - hosts: kube
-    vars:
+  - vars:
       docker_iptables: false
       install_docker_compose: false
+      hosts: "kube"
+
+    hosts: "{{ hosts }}"
     roles:
       - docker
 

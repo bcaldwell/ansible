@@ -1,8 +1,8 @@
 ---
-  - hosts: kube-3-master
-    vars:
-      join_token: "e172b1.34b5ee4547657e38"
-      master_ip: "138.197.134.8"
+  - vars:
+      hosts: kube
+
+    hosts: "{{ hosts }}"
 
     tasks:
       - name: "create kubernetes cluster"

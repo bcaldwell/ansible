@@ -1,0 +1,15 @@
+---
+  - vars:
+      hosts: kube
+      join_token: ""
+      master_ip: ""
+
+    hosts: "{{ hosts }}"
+
+    tasks:
+      - name: "joining kubernetes cluster"
+        shell: "kubeadm join --token={{ join_token }} {{ master_ip }} --skip-preflight-checks"
+        args:
+          executable: /bin/bash
+        #     become: yes
+        #   become_user: root
