@@ -1,0 +1,94 @@
+---
+- vars:
+    hosts: temp
+    clean_boot: true
+  hosts: "{{ hosts }}"
+  remote_user: root
+
+  tasks:
+  - name: ensure ubuntu 14
+    fail:
+      msg="{{ ansible_distribution_release }}"
+    when: ansible_distribution_release != "trusty"
+
+  - name: Set Dpkg options
+    copy:
+      dest: /etc/apt/apt.conf.d/local
+      content: >
+        Dpkg::Options {
+          "--force-confnew";
+          "--force-confold";
+        }
+
+  - name: System upgrade
+    apt:
+      update_cache: yes
+      upgrade: full
+    become: yes
+
+  - name: Dist upgrade
+    apt:
+      upgrade: dist
+    become: yes
+
+  - name: Install update-manager-core
+    apt:
+      name: update-manager-core
+    become: yes
+
+  - name: Restart machine after initial system upgrade
+    shell: reboot && sleep 1
+    async: 0
+    poll: 0
+    ignore_errors: true
+
+  - name: Waiting for server to come back
+    wait_for: >
+      host="{{ ansible_default_ipv4.address }}"
+      port=22
+      delay=60
+      timeout=600
+    delegate_to: localhost
+
+  - name: purge linux-headers
+    shell: apt-get -y purge linux-headers-3.13.0-32* linux-image-3.13.0-32-generic linux-image-extra-3.13.0-32-generic
+    args:
+      executable: /bin/bash
+    become: yes
+    when: clean_boot == true
+
+  - name: perform ubuntu 14 to 16 upgrade
+    shell: DEBIAN_FRONTEND=noninteractive do-release-upgrade -f DistUpgradeViewNonInteractive > /tmp/dist-upgrade.log
+    args:
+      executable: /bin/bash
+
+  - name: Restart machine after 14 to 16 upgrade
+    shell: reboot && sleep 1
+    async: 0
+    poll: 0
+    ignore_errors: true
+
+  - name: Waiting for server to come back after 14 to 16 upgrade
+    wait_for: >
+      host="{{ ansible_default_ipv4.address }}"
+      port=22
+      delay=60
+      timeout=600
+    delegate_to: localhost
+
+  - name: Remove 50unattended-upgrades
+    file:
+      state: absent
+      path: /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist
+
+  - name: update
+    apt:
+      update_cache: yes
+    become: yes
+
+
+  - name: autoremove
+    shell: apt-get -y autoremove --purge
+    args:
+      executable: /bin/bash
+    become: yes

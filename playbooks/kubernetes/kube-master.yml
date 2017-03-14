@@ -1,12 +1,12 @@
 ---
-  - hosts: kube-master
+  - hosts: kube-3-master
     vars:
       join_token: "e172b1.34b5ee4547657e38"
       master_ip: "138.197.134.8"
 
     tasks:
       - name: "create kubernetes cluster"
-        shell: kubeadm init --pod-network-cidr 10.244.0.0/16
+        shell: kubeadm init --pod-network-cidr 10.244.0.0/16 --skip-preflight-checks
         args:
           executable: /bin/bash
         #     become: yes
