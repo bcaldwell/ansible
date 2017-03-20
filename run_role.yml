@@ -2,10 +2,7 @@
 - vars:
     hosts: server
     roles: docker
-    email: caldwellbenjamin8@gmail.com
-    domains: gitmirror.benjamincaldwell.ca gitmirror.caldwellbenjam.in
-    CF_email: caldwellbenjamin8@gmail.com
-    CF_key: e3e98b307ebfb2c69973136fa52a89cd7231e
+
   hosts: "{{ hosts }}"
 
   become: true
