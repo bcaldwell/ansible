@@ -1,4 +1,7 @@
-- hosts: ubuntu16
+- vars:
+    hosts: ubuntu16
+  hosts: "{{ hosts }}"
+
   gather_facts: False
 
   tasks:
