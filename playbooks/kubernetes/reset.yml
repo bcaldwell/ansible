@@ -1,0 +1,68 @@
+---
+  - vars:
+      hosts: kube
+
+    hosts: "{{ hosts }}"
+
+    tasks:
+      - name: "reseting node"
+        shell: "kubeadm reset"
+        args:
+          executable: /bin/bash
+        become: yes
+        become_user: root
+      - name: stop kubelet
+        service:
+          name: kubelet
+          state: stopped
+
+      - name: removing all containers
+        shell: docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)
+        args:
+          executable: /bin/bash
+        become: yes
+        become_user: root
+        ignore_errors: true
+
+      - name: stop docker
+        service:
+          name: docker
+          state: stopped
+
+      - name: Clean /var/lib/cni
+        file:
+          state: absent
+          path: /var/lib/cni
+      - name: Clean /run/flannel
+        file:
+          state: absent
+          path: /run/flannel
+      - name: Clean /etc/cni
+        file:
+          state: absent
+          path: /etc/cni
+      - name: Clean /var/lib/kubelet/
+        file:
+          state: absent
+          path: /var/lib/kubelet/
+      - name: "ifconfig cni0 down"
+        shell: "ifconfig cni0 down"
+        args:
+          executable: /bin/bash
+        become: yes
+        become_user: root
+        ignore_errors: true
+      - name: "ifconfig flannel.1 down"
+        shell: "ifconfig flannel.1 down"
+        args:
+          executable: /bin/bash
+        become: yes
+        become_user: root
+        ignore_errors: true
+      - name: "ifconfig docker0 down"
+        shell: "ifconfig docker0 down"
+        args:
+          executable: /bin/bash
+        become: yes
+        become_user: root
+        ignore_errors: true
