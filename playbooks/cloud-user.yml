@@ -1,0 +1,70 @@
+---
+  - vars:
+      hosts: kube
+      user_name: cloud
+      user_password: password
+      package_to_install:
+        - ufw
+        - fail2ban
+        - unattended-upgrades
+      ssh_port: 22
+
+    hosts: "{{ hosts }}"
+
+    tasks:
+      - name: "Create {{user_name}} user"
+        user:
+          name={{user_name}}
+          state=present
+          shell=/bin/bash
+          password="{{ user_password }}"
+
+      - name: add ssh keys
+        authorized_key:
+          user="{{user_name}}"
+          key={{ lookup('file', item) }}
+          state=present
+        with_fileglob:
+          - ../../../config/ssh-public-keys/*
+
+      - name: "Add {{ user_name}} user to sudoers"
+        lineinfile:
+          dest: /etc/sudoers
+          state: present
+          regexp: "{{ user_name }}"
+          line: "{{ user_name }} ALL=(ALL) NOPASSWD: ALL"
+
+      - name: Update APT package cache
+        apt: update_cache=yes cache_valid_time=3600
+
+      - name: Install required packages
+        apt: state=installed pkg={{ item }}
+        with_items: "{{package_to_install}}"
+
+      # - name: Adjust APT update intervals
+      #   copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic
+
+      - name: Change ssh port
+        lineinfile: dest=/etc/ssh/sshd_config
+          regexp="^Port\s"
+          line="Port {{ ssh_port }}"
+          state=present
+        notify: Restart ssh
+
+      - name: Disallow password authentication
+        lineinfile: dest=/etc/ssh/sshd_config
+          regexp="^PasswordAuthentication"
+          line="PasswordAuthentication no"
+          state=present
+        notify: Restart ssh
+
+      - name: Disallow root SSH access
+        lineinfile: dest=/etc/ssh/sshd_config
+          regexp="^PermitRootLogin"
+          line="PermitRootLogin no"
+          state=present
+        notify: Restart ssh
+
+    handlers:
+      - name: Restart ssh
+        service: name=ssh state=restarted

@@ -7,6 +7,13 @@
     hosts: "{{ hosts }}"
 
     tasks:
+      - name: start docker
+        service:
+          name: docker
+          state: started
+        become: yes
+        become_user: root
+
       - name: "joining kubernetes cluster"
         shell: "kubeadm join --token={{ join_token }} {{ master_ip }} --skip-preflight-checks"
         args:

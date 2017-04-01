@@ -5,6 +5,13 @@
     hosts: "{{ hosts }}"
 
     tasks:
+      - name: start docker
+        service:
+          name: docker
+          state: started
+        become: yes
+        become_user: root
+
       - name: "create kubernetes cluster"
         shell: kubeadm init --pod-network-cidr 10.244.0.0/16 --skip-preflight-checks
         args:
@@ -12,8 +19,11 @@
         #     become: yes
         #   become_user: root
 
-      - name: "Initialize flannel"
-        shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+      - name: "Initialize canal"
+      #  when 1.6 is released
+        # shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml
+        shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/canal.yaml
+
         args:
           executable: /bin/bash
 

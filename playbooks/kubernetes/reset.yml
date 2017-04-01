@@ -28,6 +28,8 @@
         service:
           name: docker
           state: stopped
+        become: yes
+        become_user: root
 
       - name: Clean /var/lib/cni
         file:
