@@ -13,16 +13,17 @@
         become_user: root
 
       - name: "create kubernetes cluster"
-        shell: kubeadm init --pod-network-cidr 10.244.0.0/16 --skip-preflight-checks
+        shell: kubeadm init --pod-network-cidr 10.244.0.0/16
         args:
           executable: /bin/bash
         #     become: yes
         #   become_user: root
 
       - name: "Initialize canal"
-      #  when 1.6 is released
-        # shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml
-        shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/canal.yaml
+        #  when 1.6 is released
+        shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml
+        # for 1.5 or lower
+        # shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/canal.yaml
 
         args:
           executable: /bin/bash
