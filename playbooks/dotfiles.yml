@@ -1,5 +1,5 @@
 ---
-  - hosts: server
+  - hosts: gitmirror
     vars:
       package_to_install:
         - build-essential

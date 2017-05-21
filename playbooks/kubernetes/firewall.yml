@@ -1,0 +1,66 @@
+---
+  - vars:
+      hosts: kube
+      node_ips:
+        - 127.0.0.1
+      package_to_install:
+        - ufw
+      master_ip:
+
+    hosts: "{{ hosts }}"
+    
+    become: true
+
+    tasks:
+      - name: Install required packages
+        apt: state=installed pkg={{ item }}
+        with_items: "{{package_to_install}}"
+
+      - name: Reset ufw
+        ufw:
+          state: reset
+
+      - name: Allow node ips
+        ufw:
+          rule: allow
+          from_ip: "{{ item }}"
+        with_items: "{{node_ips}}"
+
+      - name: Allow kubernetes api port (6443) to master
+        ufw:
+          rule: allow
+          port: 6443
+        when:  master_ip in ansible_all_ipv4_addresses
+
+      - name: Allow ssh access
+        ufw:
+          rule: limit
+          port: ssh
+          proto: tcp
+
+      - name: allow http/https ports 
+        ufw:
+          rule: allow
+          port: "{{ item }}"
+          proto: tcp
+        with_items:
+          - 80
+          - 443
+
+      - name: allow canal network interfaces
+        ufw:
+          rule: allow
+          interface: "{{ item }}"
+          direction: in
+        when: item | search("flannel") or
+              item | search("cali")
+        with_items: "{{ ansible_interfaces }}"
+
+      - name: Change default to deny
+        ufw:
+          policy: deny
+          direction: incoming
+
+      - name: Enable UFW
+        ufw:
+          state: enabled

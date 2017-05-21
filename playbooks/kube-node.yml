@@ -1,0 +1,11 @@
+---
+  - hosts: kube-node
+    vars:
+      join_token: "3d3d2f.807d9204df8e525d"
+      master_ip: "138.197.134.8"
+
+    tasks:
+      - name: "join cluster"
+        shell: kubeadm join --token={{ join_token }} {{ master_ip }}
+        args:
+          executable: /bin/bash

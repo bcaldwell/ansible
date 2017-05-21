@@ -4,12 +4,13 @@
       user_name: cloud
       user_password: password
       package_to_install:
-        - ufw
         - fail2ban
         - unattended-upgrades
       ssh_port: 22
 
     hosts: "{{ hosts }}"
+
+    become: true
 
     tasks:
       - name: "Create {{user_name}} user"
@@ -41,8 +42,8 @@
         apt: state=installed pkg={{ item }}
         with_items: "{{package_to_install}}"
 
-      # - name: Adjust APT update intervals
-      #   copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic
+      - name: Adjust APT update intervals
+        copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic
 
       - name: Change ssh port
         lineinfile: dest=/etc/ssh/sshd_config
