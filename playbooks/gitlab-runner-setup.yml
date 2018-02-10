@@ -8,8 +8,8 @@
       registration_url: "https://gitlab.com/ci"
 
     hosts: "{{ hosts }}"
-    # roles:
-      # - docker
+    roles:
+      - docker
 
     tasks:
       - name: "runner gitlab setup script"

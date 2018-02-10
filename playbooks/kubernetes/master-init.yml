@@ -16,19 +16,18 @@
         shell: kubeadm init --pod-network-cidr 10.244.0.0/16
         args:
           executable: /bin/bash
-        #     become: yes
-        #   become_user: root
 
       - name: "Initialize canal"
-        #  when 1.6 is released
-        shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/1.6/canal.yaml
-        # for 1.5 or lower
-        # shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/kubeadm/canal.yaml
+        shell: KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.7/rbac.yaml
+        args:
+          executable: /bin/bash
 
+      - name: "Initialize canal"
+        shell: KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f https://raw.githubusercontent.com/projectcalico/canal/master/k8s-install/1.7/canal.yaml
         args:
           executable: /bin/bash
 
       - name: "Initialize kubernetes dashboard"
-        shell: kubectl apply -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+        shell: KUBECONFIG=/etc/kubernetes/admin.conf && kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
         args:
           executable: /bin/bash

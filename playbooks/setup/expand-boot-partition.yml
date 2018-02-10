@@ -1,0 +1,44 @@
+---
+  - vars:
+      hosts: kube
+      boot_partition_end: 1050624
+    hosts: "{{ hosts }}"
+    remote_user: root
+
+    tasks:
+    - name: Turn off swap
+      shell: swapoff -a
+
+    - name: Unmount /boot
+      mount:
+        path: /boot
+        state: unmounted
+
+    - name: Disable journaling on /dev/sda1
+      shell: tune2fs -O ^has_journal /dev/sda1
+
+    - name: resize boot
+      shell: "echo -e \"d\n2\nn\np\n2\n{{ boot_partition_end }}\n\nt\n2\n82\nd\n1\nn\np\n1\n\n\np\nw\" | fdisk /dev/sda"
+
+    - name: Restart machine after initial system upgrade
+      shell: reboot && sleep 1
+      async: 0
+      poll: 0
+      ignore_errors: true
+
+    - name: Waiting for server to come back
+      wait_for: >
+        host="{{ ansible_default_ipv4.address }}"
+        port=22
+        delay=60
+        timeout=600
+      delegate_to: localhost
+
+    - name: Reenable swap
+      shell: swapoff -a && mkswap -L swap /dev/sda2 &&  umount /boot && e2fsck -f /dev/sda1 && resize2fs /dev/sda1 && tune2fs -j /dev/sda1 && mount /boot
+
+    - name: Upgrade all packages to the latest version
+      apt:
+        update_cache: yes
+        upgrade: yes
+

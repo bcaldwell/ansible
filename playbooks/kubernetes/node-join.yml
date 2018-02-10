@@ -3,6 +3,7 @@
       hosts: kube
       join_token: ""
       master_ip: ""
+      cert_hash: ""
 
     hosts: "{{ hosts }}"
 
@@ -14,8 +15,10 @@
         become: yes
         become_user: root
 
+      # kubeadm token create --print-join-command
+
       - name: "joining kubernetes cluster"
-        shell: "kubeadm join --token={{ join_token }} {{ master_ip }} --skip-preflight-checks"
+        shell: "kubeadm join --token={{ join_token }} {{ master_ip }} --discovery-token-ca-cert-hash {{cert_hash}}"
         args:
           executable: /bin/bash
         #     become: yes
